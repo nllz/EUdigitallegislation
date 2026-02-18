@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EU Digital Legislation Timeline</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #ffffff;
+      color: #1a1a1a;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    
+    a {
+      color: #1a1a1a;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
+    }
+    
+    a:hover {
+      text-decoration-thickness: 2px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    
+    .subtitle {
+      color: #666;
+      font-size: 0.875rem;
+      margin-bottom: 2rem;
+    }
+    
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    
+    .view-toggle {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .view-toggle button {
+      padding: 0.4rem 0.8rem;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.15s;
+    }
+    
+    .view-toggle button:hover {
+      border-color: #999;
+    }
+    
+    .view-toggle button.active {
+      background: #1a1a1a;
+      color: #fff;
+      border-color: #1a1a1a;
+    }
+    
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    
+    .stats span {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    
+    .dot-applicable { background: #2d6a4f; }
+    .dot-negotiation { background: #b45309; }
+    .dot-planned { background: #6b7280; }
+    .dot-withdrawn { background: #991b1b; }
+    
+    .filters {
+      margin-bottom: 2rem;
+    }
+    
+    .filter-section {
+      margin-bottom: 1rem;
+    }
+    
+    .filter-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+    
+    .filter-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    
+    .filter-btn {
+      padding: 0.3rem 0.6rem;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.15s;
+    }
+    
+    .filter-btn:hover {
+      border-color: #999;
+    }
+    
+    .filter-btn.active {
+      background: #1a1a1a;
+      color: #fff;
+      border-color: #1a1a1a;
+    }
+    
+    .filter-btn.status-applicable.active { background: #2d6a4f; border-color: #2d6a4f; }
+    .filter-btn.status-in_negotiation.active { background: #b45309; border-color: #b45309; }
+    .filter-btn.status-planned.active { background: #6b7280; border-color: #6b7280; }
+    .filter-btn.status-withdrawn.active { background: #991b1b; border-color: #991b1b; }
+    
+    .select-links {
+      font-size: 0.7rem;
+      margin-left: auto;
+    }
+    
+    .select-links button {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: inherit;
+    }
+    
+    .select-links button:hover {
+      color: #1a1a1a;
+    }
+    
+    /* Timeline View */
+    .timeline-container {
+      overflow-x: auto;
+      padding-bottom: 1rem;
+    }
+    
+    .timeline {
+      display: flex;
+      min-width: max-content;
+    }
+    
+    .year-column {
+      width: 140px;
+      flex-shrink: 0;
+      border-left: 1px solid #e5e5e5;
+      padding: 0 0.5rem;
+    }
+    
+    .year-column:last-child {
+      border-right: 1px solid #e5e5e5;
+    }
+    
+    .year-header {
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e5e5e5;
+      margin-bottom: 0.5rem;
+      position: sticky;
+      top: 0;
+      background: #fff;
+    }
+    
+    .year-header.highlight {
+      color: #b45309;
+    }
+    
+    .year-count {
+      font-weight: 400;
+      color: #999;
+      font-size: 0.75rem;
+    }
+    
+    .legislation-card {
+      padding: 0.5rem;
+      margin-bottom: 0.4rem;
+      border-left: 3px solid;
+      background: #fafafa;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 0.75rem;
+    }
+    
+    .legislation-card:hover {
+      background: #f0f0f0;
+      transform: translateX(2px);
+    }
+    
+    .legislation-card .name {
+      font-weight: 500;
+      line-height: 1.3;
+      margin-bottom: 0.2rem;
+    }
+    
+    .legislation-card .status-badge {
+      font-size: 0.65rem;
+      padding: 0.1rem 0.3rem;
+      border-radius: 2px;
+      display: inline-block;
+    }
+    
+    .legislation-card.status-applicable { border-color: #2d6a4f; }
+    .legislation-card.status-in_negotiation { border-color: #b45309; }
+    .legislation-card.status-planned { border-color: #6b7280; }
+    .legislation-card.status-withdrawn { border-color: #991b1b; }
+    
+    .badge-applicable { background: #d1fae5; color: #065f46; }
+    .badge-in_negotiation { background: #fef3c7; color: #92400e; }
+    .badge-planned { background: #f3f4f6; color: #374151; }
+    .badge-withdrawn { background: #fee2e2; color: #991b1b; }
+    
+    /* List View */
+    .list-view {
+      border-top: 1px solid #e5e5e5;
+    }
+    
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e5e5e5;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    
+    .list-item:hover {
+      background: #fafafa;
+    }
+    
+    .list-year {
+      width: 50px;
+      font-size: 0.8rem;
+      color: #666;
+      flex-shrink: 0;
+    }
+    
+    .list-indicator {
+      width: 4px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    
+    .list-indicator.status-applicable { background: #2d6a4f; }
+    .list-indicator.status-in_negotiation { background: #b45309; }
+    .list-indicator.status-planned { background: #6b7280; }
+    .list-indicator.status-withdrawn { background: #991b1b; }
+    
+    .list-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .list-name {
+      font-weight: 500;
+    }
+    
+    .list-ref {
+      color: #666;
+      font-size: 0.8rem;
+      margin-left: 0.5rem;
+    }
+    
+    .list-note {
+      color: #999;
+      font-size: 0.75rem;
+      margin-top: 0.2rem;
+    }
+    
+    .list-status {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    
+    .list-link {
+      color: #999;
+      flex-shrink: 0;
+    }
+    
+    .list-link:hover {
+      color: #1a1a1a;
+    }
+    
+    /* Tooltip */
+    .tooltip {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      color: #fff;
+      padding: 1rem;
+      border-radius: 4px;
+      max-width: 400px;
+      font-size: 0.8rem;
+      z-index: 100;
+      display: none;
+    }
+    
+    .tooltip.visible {
+      display: block;
+    }
+    
+    .tooltip h4 {
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+    }
+    
+    .tooltip .ref {
+      color: #aaa;
+      font-size: 0.75rem;
+    }
+    
+    .tooltip .note {
+      color: #ccc;
+      font-size: 0.75rem;
+      font-style: italic;
+      margin-top: 0.5rem;
+    }
+    
+    .tooltip .meta {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .tooltip .tag {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 2px;
+      background: #333;
+    }
+    
+    .tooltip .hint {
+      color: #888;
+      font-size: 0.7rem;
+      margin-top: 0.5rem;
+    }
+    
+    /* Legend */
+    .legend {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e5e5e5;
+    }
+    
+    .legend h3 {
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+    }
+    
+    .legend p {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 0.3rem;
+    }
+    
+    .legend strong {
+      font-weight: 500;
+    }
+    
+    .legend .applicable { color: #2d6a4f; }
+    .legend .withdrawn { color: #991b1b; }
+    
+    /* Category colors - muted versions */
+    .cat-research { border-color: #4338ca !important; }
+    .cat-industrial { border-color: #047857 !important; }
+    .cat-connectivity { border-color: #0e7490 !important; }
+    .cat-data { border-color: #6d28d9 !important; }
+    .cat-ipr { border-color: #a21caf !important; }
+    .cat-cybersecurity { border-color: #b91c1c !important; }
+    .cat-law { border-color: #c2410c !important; }
+    .cat-trust { border-color: #a16207 !important; }
+    .cat-ecommerce { border-color: #15803d !important; }
+    .cat-competition { border-color: #1d4ed8 !important; }
+    .cat-media { border-color: #7e22ce !important; }
+    .cat-finance { border-color: #0f766e !important; }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .list-ref {
+        display: none;
+      }
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>EU Digital Legislation Timeline</h1>
+    <p class="subtitle">Based on Bruegel 2024 Factsheet • Updated February 2026 • Click items to view on EUR-Lex</p>
+    
+    <div class="controls">
+      <div class="view-toggle">
+        <button onclick="setViewMode('timeline')" id="btn-timeline" class="active">Timeline</button>
+        <button onclick="setViewMode('list')" id="btn-list">List</button>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+    
+    <div class="filters">
+      <div class="filter-section">
+        <div class="filter-label">Status</div>
+        <div class="filter-buttons" id="status-filters"></div>
+      </div>
+      <div class="filter-section">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div class="filter-label" style="margin-bottom: 0;">Category</div>
+          <div class="select-links">
+            <button onclick="selectAllCategories()">all</button> / 
+            <button onclick="clearAllCategories()">none</button>
+          </div>
+        </div>
+        <div class="filter-buttons" id="category-filters" style="margin-top: 0.5rem;"></div>
+      </div>
+    </div>
+    
+    <div id="content"></div>
+    
+    <div class="legend">
+      <h3>Key 2024 Milestones</h3>
+      <p>• <strong class="applicable">AI Act</strong> — world's first comprehensive AI law (Aug 2024)</p>
+      <p>• <strong class="applicable">Cyber Resilience Act</strong> — cybersecurity for all digital products (Dec 2024)</p>
+      <p>• <strong class="applicable">Net Zero Industry Act</strong> — 40% domestic clean tech by 2030 (June 2024)</p>
+      <p>• <strong class="withdrawn">AI Liability Directive</strong> — withdrawn Feb 2025</p>
+      <p>• <strong class="withdrawn">ePrivacy Regulation</strong> — withdrawn Feb 2025</p>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+
+  <script>
+    // ============ DATA ============
+    const legislations = [
+      // PRE-2010
+      { name: "Product Liability Directive (PLD)", ref: "(EEC) 1985/374", year: 1985, category: "E-commerce & Consumer Protection", status: "applicable", note: "Replaced by 2024/2853 from Dec 2026", url: "https://eur-lex.europa.eu/eli/dir/1985/374/oj" },
+      { name: "Unfair Contract Terms Directive", ref: "(EEC) 1993/13", year: 1993, category: "E-commerce & Consumer Protection", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/1993/13/oj" },
+      { name: "Database Directive", ref: "(EC) 1996/9", year: 1996, category: "IPR", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/1996/9/oj" },
+      { name: "E-commerce Directive", ref: "(EC) 2000/31", year: 2000, category: "E-commerce & Consumer Protection", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2000/31/oj" },
+      { name: "Information Society Directive", ref: "(EC) 2001/29", year: 2001, category: "Media", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2001/29/oj" },
+      { name: "ePrivacy Directive", ref: "(EC) 2002/58", year: 2002, category: "Data & Privacy", status: "applicable", note: "Proposed replacement withdrawn Feb 2025", url: "https://eur-lex.europa.eu/eli/dir/2002/58/oj" },
+      { name: "EC Merger Regulation", ref: "(EC) 2004/139", year: 2004, category: "Competition", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2004/139/oj" },
+      { name: "Unfair Commercial Practices Directive", ref: "(EC) 2005/29", year: 2005, category: "E-commerce & Consumer Protection", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2005/29/oj" },
+
+      // 2010-2015
+      { name: "Audio-visual Media Services Directive", ref: "(EU) 2010/13", year: 2010, category: "Media", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2010/13/oj" },
+      { name: "Directive on Consumer Rights", ref: "(EU) 2011/83", year: 2011, category: "E-commerce & Consumer Protection", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2011/83/oj" },
+      { name: "Radio Equipment Directive (RED)", ref: "(EU) 2014/53", year: 2014, category: "Trust & Safety", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2014/53/oj" },
+      { name: "eIDAS Regulation", ref: "(EU) 2014/910", year: 2014, category: "Trust & Safety", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2014/910/oj" },
+      { name: "Open Internet Access Regulation", ref: "(EU) 2015/2120", year: 2015, category: "Connectivity", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2015/2120/oj" },
+      { name: "Payment Service Directive 2 (PSD2)", ref: "(EU) 2015/2366", year: 2015, category: "Finance", status: "in_negotiation", url: "https://eur-lex.europa.eu/eli/dir/2015/2366/oj" },
+
+      // 2016-2019
+      { name: "General Data Protection Regulation (GDPR)", ref: "(EU) 2016/679", year: 2016, category: "Data & Privacy", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj" },
+      { name: "Law Enforcement Directive", ref: "(EU) 2016/680", year: 2016, category: "Law Enforcement", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2016/680/oj" },
+      { name: "Directive on trade secrets", ref: "(EU) 2016/943", year: 2016, category: "IPR", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2016/943/oj" },
+      { name: "ePrivacy Regulation (proposed)", ref: "2017/0003(COD)", year: 2017, category: "Data & Privacy", status: "withdrawn", note: "Withdrawn February 2025", url: "https://eur-lex.europa.eu/procedure/EN/2017_3" },
+      { name: "Portability Regulation", ref: "(EU) 2017/1128", year: 2017, category: "Media", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2017/1128/oj" },
+      { name: "European Electronic Communications Code", ref: "(EU) 2018/1972", year: 2018, category: "Connectivity", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2018/1972/oj" },
+      { name: "Free flow of non-personal data", ref: "(EU) 2018/1807", year: 2018, category: "Data & Privacy", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2018/1807/oj" },
+      { name: "Single Digital Gateway Regulation", ref: "(EU) 2018/1724", year: 2018, category: "Trust & Safety", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2018/1724/oj" },
+      { name: "Geo-Blocking Regulation", ref: "(EU) 2018/302", year: 2018, category: "E-commerce & Consumer Protection", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2018/302/oj" },
+      { name: "P2B Regulation", ref: "(EU) 2019/1150", year: 2019, category: "E-commerce & Consumer Protection", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2019/1150/oj" },
+      { name: "Cybersecurity Act", ref: "(EU) 2019/881", year: 2019, category: "Cybersecurity", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2019/881/oj" },
+      { name: "Open Data Directive (PSI)", ref: "(EU) 2019/1024", year: 2019, category: "Data & Privacy", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2019/1024/oj" },
+      { name: "Copyright Directive", ref: "(EU) 2019/790", year: 2019, category: "Media", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2019/790/oj" },
+      { name: "Digital content Directive", ref: "(EU) 2019/770", year: 2019, category: "E-commerce & Consumer Protection", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2019/770/oj" },
+
+      // 2021
+      { name: "Digital Europe Programme", ref: "(EU) 2021/694", year: 2021, category: "Research & Innovation", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2021/694/oj" },
+      { name: "Recovery and Resilience Facility", ref: "(EU) 2021/241", year: 2021, category: "Industrial Policy", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2021/241/oj" },
+      { name: "Horizon Europe Regulation", ref: "(EU) 2021/695", year: 2021, category: "Research & Innovation", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2021/695/oj" },
+      { name: "EuroHPC Joint Undertaking", ref: "(EU) 2021/1173", year: 2021, category: "Research & Innovation", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2021/1173/oj" },
+      { name: "Cybersecurity Competence Centre", ref: "(EU) 2021/887", year: 2021, category: "Cybersecurity", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2021/887/oj" },
+      { name: "Terrorist content online Regulation", ref: "(EU) 2021/784", year: 2021, category: "Law Enforcement", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2021/784/oj" },
+
+      // 2022
+      { name: "Digital Services Act (DSA)", ref: "(EU) 2022/2065", year: 2022, category: "Trust & Safety", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2022/2065/oj" },
+      { name: "Digital Markets Act (DMA)", ref: "(EU) 2022/1925", year: 2022, category: "Competition", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2022/1925/oj" },
+      { name: "Data Governance Act (DGA)", ref: "(EU) 2022/868", year: 2022, category: "Data & Privacy", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2022/868/oj" },
+      { name: "Path to Digital Decade", ref: "(EU) 2022/2481", year: 2022, category: "Research & Innovation", status: "applicable", url: "https://eur-lex.europa.eu/eli/dec/2022/2481/oj" },
+      { name: "Roaming Regulation", ref: "(EU) 2022/612", year: 2022, category: "Connectivity", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2022/612/oj" },
+      { name: "NIS 2 Directive", ref: "(EU) 2022/2555", year: 2022, category: "Cybersecurity", status: "applicable", url: "https://eur-lex.europa.eu/eli/dir/2022/2555/oj" },
+      { name: "Digital Operational Resilience Act (DORA)", ref: "(EU) 2022/2554", year: 2022, category: "Finance", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2022/2554/oj" },
+      { name: "AI Liability Directive", ref: "2022/0303(COD)", year: 2022, category: "Trust & Safety", status: "withdrawn", note: "Withdrawn February 2025", url: "https://eur-lex.europa.eu/procedure/EN/2022_303" },
+
+      // 2023
+      { name: "Union Secure Connectivity Programme", ref: "(EU) 2023/588", year: 2023, category: "Connectivity", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2023/588/oj" },
+      { name: "Cybersecurity Regulation", ref: "(EU) 2023/2841", year: 2023, category: "Cybersecurity", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2023/2841/oj" },
+      { name: "Crypto-assets Regulation (MiCA)", ref: "(EU) 2023/1114", year: 2023, category: "Finance", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2023/1114/oj" },
+      { name: "General Product Safety Regulation", ref: "(EU) 2023/988", year: 2023, category: "Trust & Safety", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2023/988/oj" },
+      { name: "Machinery Regulation", ref: "(EU) 2023/1230", year: 2023, category: "Trust & Safety", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2023/1230/oj" },
+      { name: "European Data Act", ref: "(EU) 2023/2854", year: 2023, category: "Data & Privacy", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2023/2854/oj" },
+      { name: "European Chips Act", ref: "(EU) 2023/1781", year: 2023, category: "Industrial Policy", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2023/1781/oj" },
+      { name: "Digital euro", ref: "2023/0212(COD)", year: 2023, category: "Finance", status: "in_negotiation", url: "https://eur-lex.europa.eu/procedure/EN/2023_212" },
+      { name: "Standard Essential Patents Reg.", ref: "2023/0133(COD)", year: 2023, category: "IPR", status: "withdrawn", note: "Withdrawn 2025", url: "https://eur-lex.europa.eu/procedure/EN/2023_133" },
+
+      // 2024
+      { name: "AI Act", ref: "(EU) 2024/1689", year: 2024, category: "Trust & Safety", status: "applicable", note: "In force Aug 2024, phased through 2027", url: "https://eur-lex.europa.eu/eli/reg/2024/1689/oj" },
+      { name: "Cyber Resilience Act", ref: "(EU) 2024/2847", year: 2024, category: "Cybersecurity", status: "applicable", note: "In force Dec 2024, applies Dec 2027", url: "https://eur-lex.europa.eu/eli/reg/2024/2847/oj" },
+      { name: "Platform Work Directive", ref: "(EU) 2024/2831", year: 2024, category: "Trust & Safety", status: "applicable", note: "In force Dec 2024", url: "https://eur-lex.europa.eu/eli/dir/2024/2831/oj" },
+      { name: "Net Zero Industry Act", ref: "(EU) 2024/1735", year: 2024, category: "Industrial Policy", status: "applicable", note: "In force June 2024", url: "https://eur-lex.europa.eu/eli/reg/2024/1735/oj" },
+      { name: "Product Liability Directive (revised)", ref: "(EU) 2024/2853", year: 2024, category: "E-commerce & Consumer Protection", status: "applicable", note: "Applies Dec 2026", url: "https://eur-lex.europa.eu/eli/dir/2024/2853/oj" },
+      { name: "Ecodesign for Sustainable Products", ref: "(EU) 2024/1781", year: 2024, category: "Trust & Safety", status: "applicable", note: "In force July 2024", url: "https://eur-lex.europa.eu/eli/reg/2024/1781/oj" },
+      { name: "Right to Repair Directive", ref: "(EU) 2024/1799", year: 2024, category: "E-commerce & Consumer Protection", status: "applicable", note: "In force July 2024", url: "https://eur-lex.europa.eu/eli/dir/2024/1799/oj" },
+      { name: "European Media Freedom Act", ref: "(EU) 2024/1083", year: 2024, category: "Media", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2024/1083/oj" },
+      { name: "Gigabit Infrastructure Act", ref: "(EU) 2024/1309", year: 2024, category: "Connectivity", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2024/1309/oj" },
+      { name: "Critical Raw Materials Act", ref: "(EU) 2024/1252", year: 2024, category: "Industrial Policy", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2024/1252/oj" },
+      { name: "Interoperable Europe Act", ref: "(EU) 2024/903", year: 2024, category: "Data & Privacy", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2024/903/oj" },
+      { name: "EuroHPC: AI Factories", ref: "(EU) 2024/1732", year: 2024, category: "Research & Innovation", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2024/1732/oj" },
+
+      // 2025
+      { name: "European Health Data Space", ref: "(EU) 2025/327", year: 2025, category: "Data & Privacy", status: "applicable", note: "In force March 2025", url: "https://eur-lex.europa.eu/eli/reg/2025/327/oj" },
+
+      // 2026
+      { name: "EuroHPC: Gigafactories & Quantum", ref: "(EU) 2026/150", year: 2026, category: "Research & Innovation", status: "applicable", url: "https://eur-lex.europa.eu/eli/reg/2026/150/oj" },
+
+      // Planned
+      { name: "Digital Networks Act", ref: "planned", year: 2025, category: "Connectivity", status: "planned", url: "https://digital-strategy.ec.europa.eu/en/policies/connectivity" },
+      { name: "EU Space Law", ref: "planned", year: 2025, category: "Research & Innovation", status: "planned", url: "https://defence-industry-space.ec.europa.eu/eu-space-policy/eu-space-programme_en" },
+    ];
+
+    const categories = [
+      "Research & Innovation", "Industrial Policy", "Connectivity", "Data & Privacy",
+      "IPR", "Cybersecurity", "Law Enforcement", "Trust & Safety",
+      "E-commerce & Consumer Protection", "Competition", "Media", "Finance"
+    ];
+
+    const categoryClasses = {
+      "Research & Innovation": "cat-research",
+      "Industrial Policy": "cat-industrial",
+      "Connectivity": "cat-connectivity",
+      "Data & Privacy": "cat-data",
+      "IPR": "cat-ipr",
+      "Cybersecurity": "cat-cybersecurity",
+      "Law Enforcement": "cat-law",
+      "Trust & Safety": "cat-trust",
+      "E-commerce & Consumer Protection": "cat-ecommerce",
+      "Competition": "cat-competition",
+      "Media": "cat-media",
+      "Finance": "cat-finance"
+    };
+
+    const statusConfig = {
+      applicable: { label: "Applicable", color: "#2d6a4f" },
+      in_negotiation: { label: "In Negotiation", color: "#b45309" },
+      planned: { label: "Planned", color: "#6b7280" },
+      withdrawn: { label: "Withdrawn", color: "#991b1b" }
+    };
+
+    // ============ STATE ============
+    let selectedCategories = new Set(categories);
+    let selectedStatuses = new Set(["applicable", "in_negotiation", "planned", "withdrawn"]);
+    let viewMode = 'timeline';
+
+    // ============ RENDER ============
+    function render() {
+      const filtered = legislations.filter(l => 
+        selectedCategories.has(l.category) && selectedStatuses.has(l.status)
+      );
+
+      const stats = { applicable: 0, in_negotiation: 0, planned: 0, withdrawn: 0 };
+      filtered.forEach(l => stats[l.status]++);
+
+      // Stats
+      document.getElementById('stats').innerHTML = `
+        <span><span class="dot dot-applicable"></span> ${stats.applicable} applicable</span>
+        <span><span class="dot dot-negotiation"></span> ${stats.in_negotiation} negotiating</span>
+        <span><span class="dot dot-planned"></span> ${stats.planned} planned</span>
+        <span><span class="dot dot-withdrawn"></span> ${stats.withdrawn} withdrawn</span>
+        <span style="color: #999;">| ${filtered.length} total</span>
+      `;
+
+      // Status filters
+      document.getElementById('status-filters').innerHTML = Object.entries(statusConfig).map(([key, config]) => `
+        <button onclick="toggleStatus('${key}')" 
+          class="filter-btn status-${key} ${selectedStatuses.has(key) ? 'active' : ''}">
+          ${config.label}
+        </button>
+      `).join('');
+
+      // Category filters
+      document.getElementById('category-filters').innerHTML = categories.map(cat => `
+        <button onclick="toggleCategory('${cat}')" 
+          class="filter-btn ${selectedCategories.has(cat) ? 'active' : ''}">
+          ${cat}
+        </button>
+      `).join('');
+
+      // View toggle
+      document.getElementById('btn-timeline').className = viewMode === 'timeline' ? 'active' : '';
+      document.getElementById('btn-list').className = viewMode === 'list' ? 'active' : '';
+
+      // Content
+      const years = [...new Set(legislations.map(l => l.year))].sort((a, b) => a - b);
+      const grouped = {};
+      years.forEach(y => grouped[y] = filtered.filter(l => l.year === y));
+
+      document.getElementById('content').innerHTML = viewMode === 'timeline' 
+        ? renderTimeline(years, grouped) 
+        : renderList(filtered);
+    }
+
+    function renderTimeline(years, grouped) {
+      return `
+        <div class="timeline-container">
+          <div class="timeline">
+            ${years.map(year => `
+              <div class="year-column">
+                <div class="year-header ${year === 2024 ? 'highlight' : ''}">
+                  ${year} <span class="year-count">${grouped[year]?.length || 0}</span>
+                </div>
+                ${(grouped[year] || []).map(leg => `
+                  <div class="legislation-card status-${leg.status} ${categoryClasses[leg.category]}"
+                    onclick="openUrl('${leg.url}')"
+                    onmouseenter="showTooltip(${JSON.stringify(leg).replace(/"/g, '&quot;')})"
+                    onmouseleave="hideTooltip()">
+                    <div class="name">${leg.name}</div>
+                    ${leg.status !== 'applicable' ? `
+                      <span class="status-badge badge-${leg.status}">${statusConfig[leg.status].label}</span>
+                    ` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderList(filtered) {
+      const sorted = [...filtered].sort((a, b) => b.year - a.year || a.name.localeCompare(b.name));
+      return `
+        <div class="list-view">
+          ${sorted.map(leg => `
+            <div class="list-item" onclick="openUrl('${leg.url}')">
+              <span class="list-year">${leg.year}</span>
+              <div class="list-indicator status-${leg.status}"></div>
+              <div class="list-content">
+                <span class="list-name">${leg.name}</span>
+                <span class="list-ref">${leg.ref}</span>
+                ${leg.note ? `<div class="list-note">${leg.note}</div>` : ''}
+              </div>
+              <span class="list-status badge-${leg.status}">${statusConfig[leg.status].label}</span>
+              <span class="list-link">↗</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // ============ INTERACTIONS ============
+    function openUrl(url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    function toggleCategory(cat) {
+      if (selectedCategories.has(cat)) selectedCategories.delete(cat);
+      else selectedCategories.add(cat);
+      render();
+    }
+
+    function selectAllCategories() {
+      selectedCategories = new Set(categories);
+      render();
+    }
+
+    function clearAllCategories() {
+      selectedCategories = new Set();
+      render();
+    }
+
+    function toggleStatus(status) {
+      if (selectedStatuses.has(status)) selectedStatuses.delete(status);
+      else selectedStatuses.add(status);
+      render();
+    }
+
+    function setViewMode(mode) {
+      viewMode = mode;
+      render();
+      if (mode === 'timeline') {
+        setTimeout(scrollToCurrentYear, 50);
+      }
+    }
+
+    function showTooltip(leg) {
+      const tooltip = document.getElementById('tooltip');
+      tooltip.innerHTML = `
+        <h4>${leg.name}</h4>
+        <div class="ref">${leg.ref}</div>
+        ${leg.note ? `<div class="note">${leg.note}</div>` : ''}
+        <div class="meta">
+          <span class="tag">${leg.category}</span>
+          <span class="tag">${statusConfig[leg.status].label}</span>
+        </div>
+        <div class="hint">Click to open EUR-Lex →</div>
+      `;
+      tooltip.classList.add('visible');
+    }
+
+    function hideTooltip() {
+      document.getElementById('tooltip').classList.remove('visible');
+    }
+
+    function scrollToCurrentYear() {
+      if (viewMode === 'timeline') {
+        const container = document.querySelector('.timeline-container');
+        if (container) {
+          // Scroll to the right (current year)
+          container.scrollLeft = container.scrollWidth;
+        }
+      }
+    }
+
+    // Initialize
+    render();
+    // Scroll to current year after initial render
+    setTimeout(scrollToCurrentYear, 50);
+  </script>
+</body>
+</html>
